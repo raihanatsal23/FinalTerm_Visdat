@@ -138,21 +138,24 @@ fig2 = px.line(
 fig2.update_traces(mode="lines+markers")
 st.plotly_chart(fig2, use_container_width=True)
 
-# Grafik 4 - Scatter Durasi vs Penjualan
-st.markdown("## Hubungan Durasi Akses dan Penjualan")
-fig3 = px.scatter(
-    filtered_df,
-    x="duration_(secs)",
+# Grafik 4 - Rata-rata Penjualan Berdasarkan Durasi Akses
+st.markdown("## Rata-rata Penjualan Berdasarkan Durasi Akses")
+
+# Buat interval durasi
+filtered_df["durasi_interval"] = pd.cut(filtered_df["duration_(secs)"], bins=20)
+
+# Hitung rata-rata penjualan per interval
+avg_sales = filtered_df.groupby("durasi_interval")["sales"].mean().reset_index()
+avg_sales["durasi_str"] = avg_sales["durasi_interval"].astype(str)
+
+fig3 = px.line(
+    avg_sales,
+    x="durasi_str",
     y="sales",
-    color="gender",
-    color_discrete_map={
-        "Male": "#8e44ad",
-        "Female": "#bdc3c7",
-        "Unknown": "#a29bfe"
-    },
-    hover_data=["membership", "pay_method"],
-    labels={"duration_(secs)": "Durasi Akses (detik)", "sales": "Penjualan"},
-    title="Scatter: Durasi Akses vs Nilai Pembelian"
+    markers=True,
+    title="Rata-rata Penjualan per Interval Durasi Akses",
+    labels={"durasi_str": "Interval Durasi (detik)", "sales": "Rata-rata Penjualan"},
+    color_discrete_sequence=["#8e44ad"]
 )
 st.plotly_chart(fig3, use_container_width=True)
 
